@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-OMIE MCP Server Entry Point
+OMIE MCP Server Entry Point - Final Version
 """
 
 import os
@@ -39,15 +39,17 @@ def main():
     
     print("Starting server on port 8000...")
     
-    # Run server in async mode but properly
-    async def run_server():
-        await server.run_http_async(port=8000, show_banner=False)
-    
-    # Run the async server in sync context
+    # This is the key fix - run the server in a persistent way
     try:
-        asyncio.run(run_server())
+        # The server should run continuously until explicitly stopped
+        # This is the standard pattern for FastMCP servers
+        asyncio.run(server.run_http_async(port=8000, show_banner=False))
     except KeyboardInterrupt:
-        print("Server stopped by user")
+        print("\nServer stopped by user")
+    except Exception as e:
+        print(f"Server error: {e}")
+        import traceback
+        traceback.print_exc()
 
 if __name__ == "__main__":
     main()
