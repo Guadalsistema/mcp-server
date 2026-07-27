@@ -1,6 +1,6 @@
 """
-Marginal Price Data Tool for OMIE
-This tool maps OMIE CSV files to MCP tools that return JSON data
+Basic Matching Process Data Tool for OMIE
+This tool provides access to OMIE's basic matching process data
 """
 
 import json
@@ -64,7 +64,7 @@ def cache_set(key: str, value: str, ttl: int = 3600):
 def _fetch_omie_data(date: str) -> Optional[str]:
     """Fetch OMIE data for a specific date."""
     try:
-        url = f"https://www.omie.es/en/file-download?parents=marginalpdbc&filename=marginalpdbc_{date}.1"
+        url = f"https://www.omie.es/en/file-download?parents=pdbc&filename=pdbc_{date}.1"
         response = requests.get(url, timeout=30)
         if response.status_code == 200:
             return response.text
@@ -83,7 +83,7 @@ def _parse_omie_csv(csv_content: str) -> list:
     for line in lines:
         if line.startswith('*'):
             break
-        if line.startswith('MARGINALPDBC'):
+        if line.startswith('PDBC'):
             continue
             
         parts = line.split(';')
@@ -102,19 +102,19 @@ def _parse_omie_csv(csv_content: str) -> list:
                 
     return data
 
-def marginalpdbc(since: Optional[str] = None, until: Optional[str] = None) -> str:
+def pdbc(since: Optional[str] = None, until: Optional[str] = None) -> str:
     """
-    Retrieve OMIE marginal price data for the Spanish electricity market.
+    Retrieve OMIE basic matching process data for the Spanish electricity market.
     
     Args:
         since: Start date in YYYYMMDD format (optional)
         until: End date in YYYYMMDD format (optional)
         
     Returns:
-        JSON string containing the marginal price data
+        JSON string containing the basic matching process data
     """
     # Generate cache key
-    cache_key = f"marginalpdbc_{since}_{until}"
+    cache_key = f"pdbc_{since}_{until}"
     
     # Try to get from cache first
     cached_result = cache_get(cache_key)
@@ -153,7 +153,7 @@ def marginalpdbc(since: Optional[str] = None, until: Optional[str] = None) -> st
     result = {
         "metadata": {
             "source": "OMIE",
-            "product": "marginalpdbc",
+            "product": "pdbc",
             "since": since,
             "until": until,
             "retrieved_at": datetime.now().isoformat(),

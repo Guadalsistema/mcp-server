@@ -11,6 +11,4 @@ COPY src/ src/
 
 RUN uv pip install --system .
 
-EXPOSE 8000
-
 CMD ["omie-mcp"]
