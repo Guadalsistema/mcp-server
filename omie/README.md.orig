@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # OMIE MCP Tools
 
 This package implements OMIE (Spanish Electricity Market Operator) data as MCP (Model Control Protocol) tools. These tools provide access to historical electricity market data from OMIE through standardized MCP interfaces.
@@ -19,17 +20,17 @@ This package implements OMIE (Spanish Electricity Market Operator) data as MCP (
 ### Tool Parameters
 
 All tools accept:
-- `since`: Start date in ISO `YYYY-MM-DD` format (optional)
-- `until`: End date in ISO `YYYY-MM-DD` format (optional)
+- `since`: Start date in YYYYMMDD format (optional)
+- `until`: End date in YYYYMMDD format (optional)
 
 ### Example Usage
 
 ```python
 # Using the marginalpdbc tool
-result = marginalpdbc(since="2023-03-01", until="2023-03-07")
+result = marginalpdbc(since="20230301", until="20230307")
 
 # Using the pdbc tool  
-result = pdbc(since="2023-03-01", until="2023-03-07")
+result = pdbc(since="20230301", until="20230307")
 ```
 
 ## Implementation Details
@@ -53,30 +54,22 @@ All tools return JSON with the following structure:
   "metadata": {
     "source": "OMIE",
     "product": "tool_name",
-    "since": "YYYY-MM-DD",
-    "until": "YYYY-MM-DD",
+    "since": "YYYYMMDD",
+    "until": "YYYYMMDD",
     "retrieved_at": "ISO timestamp",
     "count": integer
   },
   "data": [
     {
-      "date": "YYYY-MM-DD",
-      "period": integer,
-      "marginal_pt": float,
-      "marginal_es": float,
+      "date": "YYYYMMDD",
+      "hour": integer,
+      "price1": float,
+      "price2": float,
       "currency": "EUR/MWh"
     }
   ]
 }
 ```
-
-The `pdbc` rows use the named columns `unit_code`, `assigned_power`, `unused`,
-`offer_type`, and `offer_number`, with `power_unit` set to `MW`. Both responses
-include `metadata.column_map`, mapping each source column index to its name.
-
-`marginalpdbc` downloads the daily files that cover the requested range.
-`pdbc` downloads one monthly ZIP archive for each month that intersects the
-requested range, then returns only rows inside the requested dates.
 
 ## Installation
 
@@ -104,3 +97,52 @@ New tools can be added by:
 1. Creating a new `.py` file in `src/omie_mcp/tools/`
 2. Implementing the tool function with the same signature pattern
 3. Adding the tool to the `__init__.py` exports
+=======
+# MCP Server - Omie Integration
+
+This repository contains the implementation of an MCP (Model Control Protocol) server that connects AI agents with Omie's energy market data resources.
+
+## Project Structure
+
+```
+.
+├── pyproject.toml
+├── Dockerfile
+├── tests
+├── src/               # Omie MCP server package
+│   ├── app.py         # Main server entrypoint
+│   └── tools/         # Tool implementations
+│       ├── __init__.py
+│       ├── base_tool.py
+│       └── marginalpdbc.py
+└── README.md          # This file
+```
+
+## Omie MCP Server
+
+The Omie MCP server provides access to Omie's energy market data through the MCP protocol. Currently, it supports retrieving OMIE data including:
+
+- Marginal price data (marginalpdbc)
+- Other OMIE market data products
+
+## Deployment
+
+The Omie MCP server can be containerized using the provided Dockerfile:
+
+```bash
+docker build -t omie-mcp .
+docker run -p 8000:8000 omie-mcp
+```
+
+## Usage
+
+Once running, the server exposes tools that can be invoked by AI agents:
+- `marginalpdbc(since="20230307", until="20230307")` - Get marginal price data for specific dates
+
+## Development
+
+To develop locally:
+1. Create a virtual environment
+2. Install dependencies: `pip install -e .`
+3. Run the server: `python -m src.app`
+>>>>>>> 7a339ae (Initial commit with skeleton)
