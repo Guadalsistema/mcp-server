@@ -11,4 +11,5 @@ COPY src/ src/
 
 RUN uv pip install --system .
 
-CMD ["omie-mcp"]
+ENTRYPOINT ["python", "-m", "mcp_confluence.mcp"]
+CMD []
