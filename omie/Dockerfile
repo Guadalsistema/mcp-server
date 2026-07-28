@@ -1,4 +1,4 @@
-FROM python:3.12-slim-trixie
+﻿FROM python:3.12-slim-trixie
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 
 # Disable development dependencies
@@ -11,5 +11,4 @@ COPY src/ src/
 
 RUN uv pip install --system .
 
-ENTRYPOINT ["python", "-m", "mcp_confluence.mcp"]
-CMD []
+ENTRYPOINT ["python", "-m", "omie_mcp.app"]
