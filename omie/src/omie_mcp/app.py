@@ -21,7 +21,9 @@ server.add_tool(pdbc)
 
 def main():
     logging.basicConfig(level=logging.INFO)
-    server.run()
+    # Stdio clients need a fast, quiet handshake; the default banner performs
+    # a network update check before the server starts.
+    server.run(show_banner=False)
 
 
 if __name__ == "__main__":
