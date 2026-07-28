@@ -28,11 +28,24 @@ VALID_GEO_LIMITS = frozenset(
 # This legacy real-time widget returns the national curve only. Regional
 # real-time curves are served by REE's separate Visiona service.
 NATIONAL_ONLY_WIDGETS = frozenset({"demanda-tiempo-real"})
-SLUG_PATTERN = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
+SLUG_PATTERN = re.compile(r"^[A-Za-z0-9]+(?:-[A-Za-z0-9]+)*$")
 
 
 class ReeApiError(RuntimeError):
     """Raised when REE cannot return a usable response."""
+
+    def __init__(
+        self,
+        message: str,
+        *,
+        code: str,
+        status_code: int | None = None,
+        retryable: bool = False,
+    ) -> None:
+        super().__init__(message)
+        self.code = code
+        self.status_code = status_code
+        self.retryable = retryable
 
 
 def _validate_choice(value: str, field_name: str, choices: set[str] | frozenset[str]) -> str:
@@ -44,7 +57,7 @@ def _validate_choice(value: str, field_name: str, choices: set[str] | frozenset[
 
 def _validate_slug(value: str, field_name: str) -> str:
     if not isinstance(value, str) or not SLUG_PATTERN.fullmatch(value):
-        raise ValueError(f"{field_name} must be a lowercase URL slug")
+        raise ValueError(f"{field_name} must be a URL slug")
     return value
 
 
@@ -128,7 +141,10 @@ def _response_error(response: requests.Response) -> str:
                     messages.append(str(detail))
         if messages:
             return "; ".join(messages)
-    return response.text.strip() or f"HTTP {response.status_code}"
+    text = response.text.strip()
+    if text and not re.search(r"<\s*!?doctype|<\s*html\b|<\s*body\b", text, re.I):
+        return text[:500]
+    return f"HTTP {response.status_code}"
 
 
 def fetch_json(url: str, params: dict[str, str], timeout: int = 60) -> dict[str, Any]:
@@ -141,22 +157,54 @@ def fetch_json(url: str, params: dict[str, str], timeout: int = 60) -> dict[str,
             timeout=timeout,
         )
     except requests.RequestException as error:
-        raise ReeApiError(f"REE request failed: {error}") from error
+        raise ReeApiError(
+            "REE could not be reached. Retry the request later.",
+            code="ree_network_error",
+            retryable=True,
+        ) from error
 
     if response.status_code >= 400:
+        retryable = response.status_code == 429 or response.status_code >= 500
+        if retryable:
+            message = (
+                f"REE is temporarily unavailable (HTTP {response.status_code}). "
+                "Retry the request later."
+            )
+        else:
+            message = (
+                f"REE rejected the request (HTTP {response.status_code}): "
+                f"{_response_error(response)}"
+            )
         raise ReeApiError(
-            f"REE request failed with HTTP {response.status_code}: {_response_error(response)}"
+            message,
+            code="ree_upstream_unavailable" if retryable else "ree_request_rejected",
+            status_code=response.status_code,
+            retryable=retryable,
         )
 
     try:
         payload = response.json()
     except ValueError as error:
-        raise ReeApiError("REE returned a non-JSON response") from error
+        raise ReeApiError(
+            "REE returned an invalid response. Retry the request later.",
+            code="ree_invalid_response",
+            status_code=response.status_code,
+            retryable=True,
+        ) from error
 
     if not isinstance(payload, dict):
-        raise ReeApiError("REE returned an unexpected JSON payload")
+        raise ReeApiError(
+            "REE returned an unexpected response format.",
+            code="ree_invalid_response",
+            status_code=response.status_code,
+            retryable=True,
+        )
     if payload.get("errors"):
-        raise ReeApiError(f"REE API error: {_response_error(response)}")
+        raise ReeApiError(
+            f"REE rejected the request: {_response_error(response)}",
+            code="ree_api_error",
+            status_code=response.status_code,
+        )
     return payload
 
 

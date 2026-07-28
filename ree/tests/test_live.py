@@ -2,7 +2,7 @@ import json
 import os
 import unittest
 
-from ree_mcp.tools.data import ree_data
+from ree_mcp.tools.data import ReeDataInput, ree_data
 from ree_mcp.tools.glossary import ree_glossary
 
 
@@ -14,11 +14,13 @@ class ReeDataLiveTests(unittest.TestCase):
     def test_fetches_live_generation_widget(self):
         result = json.loads(
             ree_data(
-                category="generacion",
-                widget="estructura-generacion",
-                start_date="2019-01-01T00:00",
-                end_date="2019-01-01T23:59",
-                time_trunc="day",
+                ReeDataInput(
+                    category="generacion",
+                    widget="estructura-generacion",
+                    start_date="2019-01-01T00:00",
+                    end_date="2019-01-01T23:59",
+                    time_trunc="day",
+                )
             )
         )
 
