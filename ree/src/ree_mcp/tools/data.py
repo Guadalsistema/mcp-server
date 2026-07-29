@@ -220,15 +220,18 @@ class ReeDataInput(BaseModel):
     widget: Widget = Field(description="Widget slug from the REData API.")
     start_date: str = Field(description="Start date as YYYY-MM-DDTHH:MM.")
     end_date: str = Field(description="End date as YYYY-MM-DDTHH:MM.")
+    # TODO marcar opciones disponibles
+    # TODO balance solo puede ir con balance-electrico y time_trunc>day
     time_trunc: TimeTrunc = Field(default="day", description="Time aggregation.")
     lang: Language = Field(default="es", description="Response language.")
     geo_trunc: GeoTrunc | None = Field(default=None)
     geo_limit: GeoLimit | None = Field(default=None)
+    # TODO revisar valores
     geo_ids: str | None = Field(
         default=None,
         pattern=r"^\d+$",
         description=(
-            "Numeric REE geography ID. For ccaa, Andalucía=6, Aragón=7, "
+            "Numeric REE geography ID. For ccaa, Andalucía=4, Aragón=7, "
             "Cantabria=8, Castilla-La Mancha=9, Castilla y León=10, "
             "Cataluña=11, País Vasco=12, Asturias=13, Madrid=16, "
             "Navarra=17, Comunidad Valenciana=18, Extremadura=19, "
@@ -286,7 +289,7 @@ async def ree_data(
     ctx: Context | None = None,
 ) -> str | ToolResult:
     """
-    Retrieve a REData widget from Red Electrica's public API.
+    Retrieve a REE Data widget from Red Electrica's public API.
     """
     url, params = build_data_request(
         request.lang,
