@@ -2,8 +2,12 @@
   "servers": {
     "ree": {
       "type": "stdio",
-      "command": "docker",
-      "args": ["run", "--rm", "-i", "mcp/ree"]
+      "command": "${workspaceFolder}/ree/.venv/Scripts/python.exe",
+      "args": ["-m", "ree_mcp.app"],
+      "cwd": "${workspaceFolder}/ree",
+      "env": {
+        "PYTHONPATH": "${workspaceFolder}/ree/src"
+      }
     },
     "omie": {
       "type": "stdio",
