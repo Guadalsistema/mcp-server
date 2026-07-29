@@ -1,0 +1,14 @@
+{
+  "servers": {
+    "ree": {
+      "type": "stdio",
+      "command": "docker",
+      "args": ["run", "--rm", "-i", "mcp/ree"]
+    },
+    "omie": {
+      "type": "stdio",
+      "command": "docker",
+      "args": ["run", "--rm", "-i", "mcp/omie"]
+    }
+  }
+}
