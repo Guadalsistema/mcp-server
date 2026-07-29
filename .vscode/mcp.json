@@ -11,8 +11,12 @@
     },
     "omie": {
       "type": "stdio",
-      "command": "docker",
-      "args": ["run", "--rm", "-i", "mcp/omie"]
+      "command": "${workspaceFolder}/omie/.venv/Scripts/python.exe",
+      "args": ["-m", "omie_mcp.app"],
+      "cwd": "${workspaceFolder}/omie",
+      "env": {
+        "PYTHONPATH": "${workspaceFolder}/omie/src"
+      }
     }
   }
 }
