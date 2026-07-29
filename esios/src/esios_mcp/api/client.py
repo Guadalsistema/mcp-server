@@ -93,10 +93,64 @@ class EsiosApiClient:
         params: Mapping[str, Any] | None = None,
         api_version: str = "v1",
     ) -> dict[str, Any]:
-        """Perform an authenticated GET and return the upstream JSON object."""
+        """Perform an authenticated GET and return an upstream JSON object."""
+        payload = self.get_json(path, params=params, api_version=api_version)
+        if not isinstance(payload, dict):
+            raise EsiosApiError(
+                "e·sios returned an unexpected response format.",
+                code="esios_invalid_response",
+                retryable=True,
+            )
+        return payload
+
+    def get_json(
+        self,
+        path: str,
+        *,
+        params: Mapping[str, Any] | None = None,
+        api_version: str = "v1",
+    ) -> Any:
+        """Perform an authenticated GET and preserve any JSON top-level type."""
+        response = self._request(path, params=params, api_version=api_version)
+
+        try:
+            payload = response.json()
+        except ValueError as error:
+            raise EsiosApiError(
+                "e·sios returned an invalid JSON response. Retry the request later.",
+                code="esios_invalid_response",
+                status_code=response.status_code,
+                retryable=True,
+            ) from error
+        return payload
+
+    def download(
+        self,
+        path: str,
+        *,
+        params: Mapping[str, Any] | None = None,
+    ) -> tuple[bytes, str | None]:
+        """Download a binary e·sios resource and return its bytes and content type."""
+        response = self._request(
+            path,
+            params=params,
+            api_version="v1",
+            accept="application/octet-stream, application/pdf, application/json",
+        )
+        return response.content, response.headers.get("Content-Type")
+
+    def _request(
+        self,
+        path: str,
+        *,
+        params: Mapping[str, Any] | None = None,
+        api_version: str = "v1",
+        accept: str | None = None,
+    ) -> requests.Response:
+        """Perform the authenticated HTTP request shared by JSON and downloads."""
         url = self.url_for(path)
         headers = {
-            "Accept": f"application/json; application/vnd.esios-api-{api_version}+json",
+            "Accept": accept or f"application/json; application/vnd.esios-api-{api_version}+json",
             "Content-Type": "application/json",
             "x-api-key": self.api_key,
         }
@@ -133,22 +187,4 @@ class EsiosApiClient:
                 status_code=response.status_code,
                 retryable=retryable,
             )
-
-        try:
-            payload = response.json()
-        except ValueError as error:
-            raise EsiosApiError(
-                "e·sios returned an invalid JSON response. Retry the request later.",
-                code="esios_invalid_response",
-                status_code=response.status_code,
-                retryable=True,
-            ) from error
-
-        if not isinstance(payload, dict):
-            raise EsiosApiError(
-                "e·sios returned an unexpected response format.",
-                code="esios_invalid_response",
-                status_code=response.status_code,
-                retryable=True,
-            )
-        return payload
+        return response

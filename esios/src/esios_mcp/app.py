@@ -6,10 +6,26 @@ import logging
 from fastmcp import FastMCP
 
 from esios_mcp.mcp import (
+    esios_download_archive,
+    esios_download_json_archive,
+    esios_filter_news,
+    esios_get_archive,
+    esios_get_archive_calculator_data,
+    esios_get_content,
+    esios_get_content_by_id,
     esios_get_indicator,
+    esios_get_json_archive,
+    esios_get_offer_indicator,
+    esios_get_offer_widget,
     esios_get_widget,
+    esios_list_archives,
+    esios_list_auctions,
+    esios_list_content,
     esios_list_indicators,
+    esios_list_json_archives,
     esios_list_widgets,
+    esios_search_contents,
+    esios_search_contents_and_indicators,
     esios_search_indicators,
 )
 
@@ -27,6 +43,22 @@ server.add_tool(esios_search_indicators)
 server.add_tool(esios_get_indicator)
 server.add_tool(esios_list_widgets)
 server.add_tool(esios_get_widget)
+server.add_tool(esios_list_archives)
+server.add_tool(esios_get_archive)
+server.add_tool(esios_get_archive_calculator_data)
+server.add_tool(esios_download_archive)
+server.add_tool(esios_list_json_archives)
+server.add_tool(esios_get_json_archive)
+server.add_tool(esios_download_json_archive)
+server.add_tool(esios_list_auctions)
+server.add_tool(esios_list_content)
+server.add_tool(esios_filter_news)
+server.add_tool(esios_get_content)
+server.add_tool(esios_get_content_by_id)
+server.add_tool(esios_get_offer_widget)
+server.add_tool(esios_get_offer_indicator)
+server.add_tool(esios_search_contents)
+server.add_tool(esios_search_contents_and_indicators)
 
 
 def main() -> None:

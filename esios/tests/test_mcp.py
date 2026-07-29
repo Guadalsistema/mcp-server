@@ -73,6 +73,22 @@ class McpToolTests(unittest.TestCase):
             "esios_get_indicator",
             "esios_list_widgets",
             "esios_get_widget",
+            "esios_list_archives",
+            "esios_get_archive",
+            "esios_get_archive_calculator_data",
+            "esios_download_archive",
+            "esios_list_json_archives",
+            "esios_get_json_archive",
+            "esios_download_json_archive",
+            "esios_list_auctions",
+            "esios_list_content",
+            "esios_filter_news",
+            "esios_get_content",
+            "esios_get_content_by_id",
+            "esios_get_offer_widget",
+            "esios_get_offer_indicator",
+            "esios_search_contents",
+            "esios_search_contents_and_indicators",
         ):
             self.assertIsNotNone(asyncio.run(server.get_tool(name)), name)
 

@@ -29,6 +29,23 @@ responses or MCP notifications.
   date-range filters, aggregations, and geographical filters.
 - `esios_list_widgets`: list Widget V2 resources.
 - `esios_get_widget`: retrieve a Widget V2 resource by numeric ID or slug.
+- `esios_list_archives`, `esios_get_archive`, and
+  `esios_get_archive_calculator_data`: discover archive metadata and calculator
+  values.
+- `esios_download_archive`: download an archive as base64 with content type and
+  size metadata.
+- `esios_list_json_archives`, `esios_get_json_archive`, and
+  `esios_download_json_archive`: discover and retrieve JSON archive values.
+- `esios_list_auctions`: list auctions, optionally by year.
+- `esios_list_content`: list maps, documentations, glossaries, news, static
+  pages, or UMMs with taxonomy, vocabulary, ordering, and sticky filters.
+- `esios_filter_news`: specialized news filtering tool.
+- `esios_get_content` and `esios_get_content_by_id`: retrieve content by its
+  locale-prefixed slug or shared content ID.
+- `esios_get_offer_widget` and `esios_get_offer_indicator`: retrieve offer
+  widget and offer-indicator data.
+- `esios_search_contents` and `esios_search_contents_and_indicators`: search
+  content or combined content and indicator records.
 
 Spanish is the default locale; `en` is also supported. The upstream JSON is
 preserved under the response `data` field, with request metadata alongside it.

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import asyncio
+import base64
 import json
 from datetime import datetime as DateTime
 from datetime import timezone
@@ -35,7 +36,7 @@ async def mcp_log(
         await ctx.info(message, logger_name="esios_mcp", extra=extra)
 
 
-def json_result(operation: str, request: dict[str, Any], payload: dict[str, Any]) -> str:
+def json_result(operation: str, request: dict[str, Any], payload: Any) -> str:
     """Wrap the unchanged upstream payload with MCP metadata."""
     return json.dumps(
         {
@@ -78,7 +79,7 @@ async def run_api_call(
     operation: str,
     url: str,
     request: dict[str, Any],
-    call: Callable[[], dict[str, Any]],
+    call: Callable[[], Any],
 ) -> str | ToolResult:
     """Run synchronous requests work off the event loop and report its status."""
     await mcp_log(ctx, f"Calling the e·sios {operation}", extra={"url": url, "params": request})
@@ -106,6 +107,66 @@ async def run_api_call(
     return json_result(operation, request, payload)
 
 
+def binary_result(
+    operation: str,
+    request: dict[str, Any],
+    content: bytes,
+    content_type: str | None,
+) -> str:
+    """Represent a downloaded file in a JSON-safe MCP response."""
+    return json.dumps(
+        {
+            "metadata": {
+                "source": ESIOS_SOURCE,
+                "service": operation,
+                "request": request,
+                "retrieved_at": DateTime.now(timezone.utc).isoformat(),
+            },
+            "data": {
+                "content_type": content_type,
+                "size_bytes": len(content),
+                "base64": base64.b64encode(content).decode("ascii"),
+            },
+        },
+        indent=2,
+        ensure_ascii=False,
+    )
+
+
+async def run_download(
+    *,
+    ctx: Context | None,
+    operation: str,
+    url: str,
+    request: dict[str, Any],
+    call: Callable[[], tuple[bytes, str | None]],
+) -> str | ToolResult:
+    """Download a binary resource off the event loop and report its status."""
+    await mcp_log(ctx, f"Calling the e·sios {operation}", extra={"url": url, "params": request})
+    try:
+        content, content_type = await asyncio.to_thread(call)
+    except EsiosApiError as error:
+        await mcp_log(
+            ctx,
+            f"e·sios {operation} call failed",
+            level="error",
+            extra={
+                "url": url,
+                "code": error.code,
+                "status_code": error.status_code,
+                "retryable": error.retryable,
+            },
+        )
+        return error_result(operation, request, error)
+
+    await mcp_log(
+        ctx,
+        f"e·sios {operation} call completed",
+        extra={"url": url, "status": "success", "size_bytes": len(content)},
+    )
+    return binary_result(operation, request, content, content_type)
+
+
 def validate_locale(locale: str) -> str:
     if locale not in {"es", "en"}:
         raise ValueError("locale must be one of: en, es")
@@ -131,6 +192,18 @@ def validate_indicator_id(indicator_id: int) -> int:
     if isinstance(indicator_id, bool) or not isinstance(indicator_id, int) or indicator_id <= 0:
         raise ValueError("indicator_id must be a positive integer")
     return indicator_id
+
+
+def validate_positive_id(value: int, field_name: str) -> int:
+    if isinstance(value, bool) or not isinstance(value, int) or value <= 0:
+        raise ValueError(f"{field_name} must be a positive integer")
+    return value
+
+
+def validate_nonempty(value: str, field_name: str) -> str:
+    if not isinstance(value, str) or not value.strip():
+        raise ValueError(f"{field_name} must be a non-empty string")
+    return value.strip()
 
 
 def validate_widget_identifier(widget_id_or_slug: int | str) -> str:
