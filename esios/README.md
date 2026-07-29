@@ -23,8 +23,8 @@ responses or MCP notifications.
 
 ## Tools
 
-- `esios_list_indicators`: list available indicators.
-- `esios_search_indicators`: search indicators by name.
+- `esios_list_indicators`: list available indicators, with taxonomy filters.
+- `esios_search_indicators`: search indicators by name, with taxonomy filters.
 - `esios_get_indicator`: retrieve one indicator by ID, including values,
   date-range filters, aggregations, and geographical filters.
 - `esios_list_widgets`: list Widget V2 resources.
@@ -37,6 +37,7 @@ responses or MCP notifications.
 - `esios_list_json_archives`, `esios_get_json_archive`, and
   `esios_download_json_archive`: discover and retrieve JSON archive values.
 - `esios_list_auctions`: list auctions, optionally by year.
+- `esios_get_cached_widget_datetime`: retrieve a Widget V2 cache-key timestamp.
 - `esios_list_content`: list maps, documentations, glossaries, news, static
   pages, or UMMs with taxonomy, vocabulary, ordering, and sticky filters.
 - `esios_filter_news`: specialized news filtering tool.

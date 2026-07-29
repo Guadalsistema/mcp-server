@@ -10,6 +10,7 @@ from .archives import (
     esios_list_json_archives,
 )
 from .auctions import esios_list_auctions
+from .cached_widgets import esios_get_cached_widget_datetime
 from .content import esios_filter_news, esios_get_content, esios_get_content_by_id, esios_list_content
 from .indicators import esios_get_indicator, esios_list_indicators, esios_search_indicators
 from .offers import esios_get_offer_indicator, esios_get_offer_widget
@@ -25,6 +26,7 @@ __all__ = [
     "esios_list_archives",
     "esios_list_json_archives",
     "esios_list_auctions",
+    "esios_get_cached_widget_datetime",
     "esios_filter_news",
     "esios_get_content",
     "esios_get_content_by_id",

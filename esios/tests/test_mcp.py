@@ -81,6 +81,7 @@ class McpToolTests(unittest.TestCase):
             "esios_get_json_archive",
             "esios_download_json_archive",
             "esios_list_auctions",
+            "esios_get_cached_widget_datetime",
             "esios_list_content",
             "esios_filter_news",
             "esios_get_content",

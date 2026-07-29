@@ -206,6 +206,26 @@ def validate_nonempty(value: str, field_name: str) -> str:
     return value.strip()
 
 
+def validate_string_list(values: list[str] | None, field_name: str) -> list[str] | None:
+    if values is None:
+        return None
+    if not isinstance(values, list) or not values:
+        raise ValueError(f"{field_name} must be a non-empty list of strings")
+    if any(not isinstance(value, str) or not value.strip() for value in values):
+        raise ValueError(f"{field_name} must be a non-empty list of strings")
+    return [value.strip() for value in values]
+
+
+def validate_positive_int_list(values: list[int] | None, field_name: str) -> list[int] | None:
+    if values is None:
+        return None
+    if not isinstance(values, list) or not values:
+        raise ValueError(f"{field_name} must be a non-empty list of positive integers")
+    if any(isinstance(value, bool) or not isinstance(value, int) or value <= 0 for value in values):
+        raise ValueError(f"{field_name} must be a non-empty list of positive integers")
+    return values
+
+
 def validate_widget_identifier(widget_id_or_slug: int | str) -> str:
     if isinstance(widget_id_or_slug, bool):
         raise ValueError("widget_id_or_slug must be a positive integer or non-empty slug")

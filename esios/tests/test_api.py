@@ -4,6 +4,7 @@ from unittest.mock import MagicMock, patch
 
 from esios_mcp.api import (
     ArchivesApi,
+    CachedWidgetsApi,
     ContentApi,
     EsiosApiClient,
     IndicatorsApi,
@@ -24,6 +25,46 @@ class Response:
 
 
 class ApiClientTests(unittest.TestCase):
+    def test_indicator_filters_use_repeated_taxonomy_parameters(self):
+        session = MagicMock()
+        session.get.return_value = Response({"indicators": []})
+        client = EsiosApiClient("secret", session=session)
+
+        IndicatorsApi(client).search(
+            "precio",
+            locale="es",
+            taxonomy_terms=["Potencia"],
+            taxonomy_ids=[1, 2],
+        )
+
+        self.assertEqual(
+            session.get.call_args.kwargs["params"],
+            {
+                "locale": "es",
+                "taxonomy_terms[]": ["Potencia"],
+                "taxonomy_ids[]": ["1", "2"],
+                "text": "precio",
+            },
+        )
+
+    def test_cached_widget_uses_v2_headers(self):
+        session = MagicMock()
+        session.get.return_value = Response({"widget": {"id_widget": 1}})
+        client = EsiosApiClient("secret", session=session)
+
+        CachedWidgetsApi(client).get(1, locale="en")
+
+        session.get.assert_called_once_with(
+            "https://api.esios.ree.es/cached_widgets/1",
+            params={"locale": "en"},
+            headers={
+                "Accept": "application/json; application/vnd.esios-api-v2+json",
+                "Content-Type": "application/json",
+                "x-api-key": "secret",
+            },
+            timeout=60,
+        )
+
     def test_indicator_request_uses_versioned_headers_and_repeated_geo_ids(self):
         session = MagicMock()
         session.get.return_value = Response({"indicator": {"id": 123}})

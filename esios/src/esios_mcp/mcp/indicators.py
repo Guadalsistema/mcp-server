@@ -14,6 +14,8 @@ from .common import (
     validate_date_range,
     validate_indicator_id,
     validate_locale,
+    validate_positive_int_list,
+    validate_string_list,
 )
 
 
@@ -42,23 +44,38 @@ GeoTruncation = Literal[
 
 async def esios_list_indicators(
     locale: Locale = "es",
+    taxonomy_terms: list[str] | None = None,
+    taxonomy_ids: list[int] | None = None,
     ctx: Context | None = None,
 ) -> str | ToolResult:
     """List available e·sios indicators, optionally translated to Spanish or English."""
     locale = validate_locale(locale)
-    request = {"locale": locale}
+    taxonomy_terms = validate_string_list(taxonomy_terms, "taxonomy_terms")
+    taxonomy_ids = validate_positive_int_list(taxonomy_ids, "taxonomy_ids")
+    request = {
+        "locale": locale,
+        "taxonomy_terms": taxonomy_terms,
+        "taxonomy_ids": taxonomy_ids,
+    }
+    request = {key: value for key, value in request.items() if value is not None}
     return await run_api_call(
         ctx=ctx,
         operation="Indicator API list",
         url=f"{ESIOS_API_BASE_URL}/indicators",
         request=request,
-        call=lambda: IndicatorsApi(EsiosApiClient()).list(locale=locale),
+        call=lambda: IndicatorsApi(EsiosApiClient()).list(
+            locale=locale,
+            taxonomy_terms=taxonomy_terms,
+            taxonomy_ids=taxonomy_ids,
+        ),
     )
 
 
 async def esios_search_indicators(
     text: str,
     locale: Locale = "es",
+    taxonomy_terms: list[str] | None = None,
+    taxonomy_ids: list[int] | None = None,
     ctx: Context | None = None,
 ) -> str | ToolResult:
     """Search e·sios indicators by name in the selected locale."""
@@ -66,13 +83,26 @@ async def esios_search_indicators(
     if not isinstance(text, str) or not text.strip():
         raise ValueError("text must be a non-empty search term")
     text = text.strip()
-    request = {"locale": locale, "text": text}
+    taxonomy_terms = validate_string_list(taxonomy_terms, "taxonomy_terms")
+    taxonomy_ids = validate_positive_int_list(taxonomy_ids, "taxonomy_ids")
+    request = {
+        "locale": locale,
+        "text": text,
+        "taxonomy_terms": taxonomy_terms,
+        "taxonomy_ids": taxonomy_ids,
+    }
+    request = {key: value for key, value in request.items() if value is not None}
     return await run_api_call(
         ctx=ctx,
         operation="Indicator API search",
         url=f"{ESIOS_API_BASE_URL}/indicators",
         request=request,
-        call=lambda: IndicatorsApi(EsiosApiClient()).search(text, locale=locale),
+        call=lambda: IndicatorsApi(EsiosApiClient()).search(
+            text,
+            locale=locale,
+            taxonomy_terms=taxonomy_terms,
+            taxonomy_ids=taxonomy_ids,
+        ),
     )
 
 

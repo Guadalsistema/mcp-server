@@ -13,13 +13,54 @@ class IndicatorsApi:
     def __init__(self, client: EsiosApiClient) -> None:
         self.client = client
 
-    def list(self, *, locale: str = "es") -> dict[str, Any]:
-        return self.client.get("/indicators", params={"locale": locale}, api_version="v1")
+    @staticmethod
+    def _list_params(
+        *,
+        locale: str,
+        taxonomy_terms: list[str] | None = None,
+        taxonomy_ids: list[int] | None = None,
+    ) -> dict[str, Any]:
+        params: dict[str, Any] = {"locale": locale}
+        if taxonomy_terms:
+            params["taxonomy_terms[]"] = taxonomy_terms
+        if taxonomy_ids:
+            params["taxonomy_ids[]"] = [str(value) for value in taxonomy_ids]
+        return params
 
-    def search(self, text: str, *, locale: str = "es") -> dict[str, Any]:
+    def list(
+        self,
+        *,
+        locale: str = "es",
+        taxonomy_terms: list[str] | None = None,
+        taxonomy_ids: list[int] | None = None,
+    ) -> dict[str, Any]:
         return self.client.get(
             "/indicators",
-            params={"locale": locale, "text": text},
+            params=self._list_params(
+                locale=locale,
+                taxonomy_terms=taxonomy_terms,
+                taxonomy_ids=taxonomy_ids,
+            ),
+            api_version="v1",
+        )
+
+    def search(
+        self,
+        text: str,
+        *,
+        locale: str = "es",
+        taxonomy_terms: list[str] | None = None,
+        taxonomy_ids: list[int] | None = None,
+    ) -> dict[str, Any]:
+        params = self._list_params(
+            locale=locale,
+            taxonomy_terms=taxonomy_terms,
+            taxonomy_ids=taxonomy_ids,
+        )
+        params["text"] = text
+        return self.client.get(
+            "/indicators",
+            params=params,
             api_version="v1",
         )
 
