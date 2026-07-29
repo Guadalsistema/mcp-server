@@ -35,15 +35,19 @@ real-time curves are provided by REE's separate Visiona service.
 Example:
 
 ```python
+import asyncio
+
 from ree_mcp.tools.data import ReeDataInput, ree_data
 
-ree_data(
-    ReeDataInput(
-        category="balance",
-        widget="balance-electrico",
-        start_date="2019-01-01T00:00",
-        end_date="2019-01-31T23:59",
-        time_trunc="day",
+asyncio.run(
+    ree_data(
+        ReeDataInput(
+            category="balance",
+            widget="balance-electrico",
+            start_date="2019-01-01T00:00",
+            end_date="2019-01-31T23:59",
+            time_trunc="day",
+        )
     )
 )
 ```
@@ -55,6 +59,11 @@ If REE is unavailable or returns an upstream error, the tool returns the MCP
 error result with `isError: true`. Its text payload contains a stable error
 `code`, a user-facing `message`, the HTTP `status_code` when available, and a
 `retryable` flag. Upstream HTML error pages are never exposed to the caller.
+
+Each tool sends FastMCP `info` notifications when an REE request starts and
+completes. Failed upstream requests send an `error` notification. Messages
+include structured request URL, parameters, status, and error metadata for MCP
+clients that support server logging.
 
 ### `ree_glossary`
 

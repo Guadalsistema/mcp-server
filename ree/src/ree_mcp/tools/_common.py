@@ -5,8 +5,9 @@ from __future__ import annotations
 import json
 import re
 from datetime import datetime
-from typing import Any
+from typing import Any, Literal
 
+from fastmcp import Context
 import requests
 
 
@@ -46,6 +47,23 @@ class ReeApiError(RuntimeError):
         self.code = code
         self.status_code = status_code
         self.retryable = retryable
+
+
+async def mcp_log(
+    ctx: Context | None,
+    message: str,
+    *,
+    level: Literal["info", "error"] = "info",
+    extra: dict[str, Any] | None = None,
+) -> None:
+    """Send a structured log notification when an MCP session is active."""
+    if ctx is None or ctx.request_context is None:
+        return
+
+    if level == "error":
+        await ctx.error(message, logger_name="ree_mcp", extra=extra)
+    else:
+        await ctx.info(message, logger_name="ree_mcp", extra=extra)
 
 
 def _validate_choice(value: str, field_name: str, choices: set[str] | frozenset[str]) -> str:

@@ -2,15 +2,17 @@
 
 from __future__ import annotations
 
+import asyncio
 import re
 import unicodedata
 from datetime import datetime
 from html.parser import HTMLParser
 from typing import Optional, TypedDict
 
+from fastmcp import Context
 import requests
 
-from ._common import REE_GLOSSARY_URLS, VALID_LANGUAGES, json_result
+from ._common import REE_GLOSSARY_URLS, VALID_LANGUAGES, json_result, mcp_log
 
 
 class _Field(TypedDict):
@@ -158,10 +160,11 @@ def _fetch_glossary(lang: str) -> str:
     return response.text
 
 
-def ree_glossary(
+async def ree_glossary(
     term: Optional[str] = None,
     category: Optional[str] = None,
     lang: str = "es",
+    ctx: Context | None = None,
 ) -> str:
     """
     Search REE's electrical and environmental glossary.
@@ -176,7 +179,24 @@ def ree_glossary(
     if term is not None and not isinstance(term, str):
         raise ValueError("term must be a string")
 
-    records = parse_glossary_html(_fetch_glossary(lang))
+    url = REE_GLOSSARY_URLS[lang]
+    await mcp_log(
+        ctx,
+        "Calling the REE glossary API",
+        extra={"url": url, "lang": lang},
+    )
+    try:
+        html = await asyncio.to_thread(_fetch_glossary, lang)
+    except RuntimeError as error:
+        await mcp_log(
+            ctx,
+            "REE glossary API call failed",
+            level="error",
+            extra={"url": url, "error_type": type(error).__name__},
+        )
+        raise
+
+    records = parse_glossary_html(html)
     if category:
         records = [record for record in records if record["category"] == category]
     if term:
@@ -188,6 +208,11 @@ def ree_glossary(
             or needle in _search_key(record["definition"])
         ]
 
+    await mcp_log(
+        ctx,
+        "REE glossary API call completed",
+        extra={"url": url, "status": "success", "result_count": len(records)},
+    )
     return json_result(
         {
             "source": "REE",

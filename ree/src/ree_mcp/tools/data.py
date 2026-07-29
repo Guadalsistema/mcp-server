@@ -1,9 +1,11 @@
 """Generic REData API tool."""
 
+import asyncio
 import json
 from datetime import datetime
 from typing import Literal
 
+from fastmcp import Context
 from fastmcp.tools import ToolResult
 from pydantic import BaseModel, Field, field_validator, model_validator
 
@@ -13,6 +15,7 @@ from ._common import (
     build_data_request,
     fetch_json,
     json_result,
+    mcp_log,
 )
 
 
@@ -278,7 +281,10 @@ def _ree_error_result(request: ReeDataInput, error: ReeApiError) -> ToolResult:
     )
 
 
-def ree_data(request: ReeDataInput) -> str | ToolResult:
+async def ree_data(
+    request: ReeDataInput,
+    ctx: Context | None = None,
+) -> str | ToolResult:
     """
     Retrieve a REData widget from Red Electrica's public API.
     """
@@ -293,10 +299,32 @@ def ree_data(request: ReeDataInput) -> str | ToolResult:
         request.geo_limit,
         request.geo_ids,
     )
+    await mcp_log(
+        ctx,
+        "Calling the REE REData API",
+        extra={"url": url, "params": params},
+    )
     try:
-        payload = fetch_json(url, params)
+        payload = await asyncio.to_thread(fetch_json, url, params)
     except ReeApiError as error:
+        await mcp_log(
+            ctx,
+            "REE REData API call failed",
+            level="error",
+            extra={
+                "url": url,
+                "code": error.code,
+                "status_code": error.status_code,
+                "retryable": error.retryable,
+            },
+        )
         return _ree_error_result(request, error)
+
+    await mcp_log(
+        ctx,
+        "REE REData API call completed",
+        extra={"url": url, "status": "success"},
+    )
     return json_result(
         {
             "source": "REE",

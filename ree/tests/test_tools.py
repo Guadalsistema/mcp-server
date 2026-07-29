@@ -2,7 +2,7 @@ import asyncio
 import json
 import unittest
 from typing import cast
-from unittest.mock import patch
+from unittest.mock import AsyncMock, MagicMock, call, patch
 
 from ree_mcp.app import server
 from fastmcp.tools import ToolResult
@@ -64,7 +64,7 @@ class DataToolTests(unittest.TestCase):
         get.return_value = Response(DATA_PAYLOAD)
 
         result = json.loads(
-            cast(str, ree_data(self.request()))
+            cast(str, asyncio.run(ree_data(self.request())))
         )
 
         get.assert_called_once_with(
@@ -102,11 +102,13 @@ class DataToolTests(unittest.TestCase):
     def test_builds_official_regional_query(self, get):
         get.return_value = Response(DATA_PAYLOAD)
 
-        ree_data(
-            self.request(
-                geo_trunc="electric_system",
-                geo_limit="ccaa",
-                geo_ids="1",
+        asyncio.run(
+            ree_data(
+                self.request(
+                    geo_trunc="electric_system",
+                    geo_limit="ccaa",
+                    geo_ids="1",
+                )
             )
         )
 
@@ -122,6 +124,61 @@ class DataToolTests(unittest.TestCase):
             },
             headers={"Accept": "application/json"},
             timeout=60,
+        )
+
+    @patch("ree_mcp.tools._common.requests.get")
+    def test_ree_data_reports_api_call_to_mcp_client(self, get):
+        get.return_value = Response(DATA_PAYLOAD)
+        ctx = MagicMock(request_context=object())
+        ctx.info = AsyncMock()
+        ctx.error = AsyncMock()
+
+        asyncio.run(ree_data(self.request(), ctx=ctx))
+
+        self.assertEqual(ctx.info.await_count, 2)
+        self.assertEqual(ctx.info.await_args_list[0], call(
+            "Calling the REE REData API",
+            logger_name="ree_mcp",
+            extra={
+                "url": "https://apidatos.ree.es/es/datos/demanda/evolucion",
+                "params": {
+                    "start_date": "2024-01-01T00:00",
+                    "end_date": "2024-01-01T23:59",
+                    "time_trunc": "day",
+                },
+            },
+        ))
+        self.assertEqual(ctx.info.await_args_list[1], call(
+            "REE REData API call completed",
+            logger_name="ree_mcp",
+            extra={
+                "url": "https://apidatos.ree.es/es/datos/demanda/evolucion",
+                "status": "success",
+            },
+        ))
+        ctx.error.assert_not_awaited()
+
+    @patch("ree_mcp.tools._common.requests.get")
+    def test_ree_data_reports_api_failure_to_mcp_client(self, get):
+        response = Response(text="upstream failure")
+        response.status_code = 503
+        get.return_value = response
+        ctx = MagicMock(request_context=object())
+        ctx.info = AsyncMock()
+        ctx.error = AsyncMock()
+
+        asyncio.run(ree_data(self.request(), ctx=ctx))
+
+        ctx.info.assert_awaited_once()
+        ctx.error.assert_awaited_once_with(
+            "REE REData API call failed",
+            logger_name="ree_mcp",
+            extra={
+                "url": "https://apidatos.ree.es/es/datos/demanda/evolucion",
+                "code": "ree_upstream_unavailable",
+                "status_code": 503,
+                "retryable": True,
+            },
         )
 
     def test_rejects_wrong_category_for_instantaneous_power(self):
@@ -284,11 +341,38 @@ class GlossaryToolTests(unittest.TestCase):
 
     @patch("ree_mcp.tools.glossary._fetch_glossary", return_value=GLOSSARY_HTML)
     def test_glossary_search_is_accent_insensitive(self, fetch):
-        result = json.loads(ree_glossary(term="almacenamiento", category="electrical"))
+        result = json.loads(
+            asyncio.run(ree_glossary(term="almacenamiento", category="electrical"))
+        )
 
         fetch.assert_called_once_with("es")
         self.assertEqual(result["metadata"]["count"], 1)
         self.assertEqual(result["data"][0]["term"], "Almacenamiento")
+
+    @patch("ree_mcp.tools.glossary._fetch_glossary", return_value=GLOSSARY_HTML)
+    def test_glossary_reports_api_call_to_mcp_client(self, fetch):
+        ctx = MagicMock(request_context=object())
+        ctx.info = AsyncMock()
+        ctx.error = AsyncMock()
+
+        asyncio.run(ree_glossary(term="almacenamiento", ctx=ctx))
+
+        fetch.assert_called_once_with("es")
+        self.assertEqual(ctx.info.await_count, 2)
+        self.assertEqual(ctx.info.await_args_list[0], call(
+            "Calling the REE glossary API",
+            logger_name="ree_mcp",
+            extra={"url": "https://www.ree.es/es/glosario", "lang": "es"},
+        ))
+        self.assertEqual(ctx.info.await_args_list[1], call(
+            "REE glossary API call completed",
+            logger_name="ree_mcp",
+            extra={
+                "url": "https://www.ree.es/es/glosario",
+                "status": "success",
+                "result_count": 1,
+            },
+        ))
 
 
 if __name__ == "__main__":
