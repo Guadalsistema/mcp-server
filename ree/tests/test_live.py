@@ -1,3 +1,4 @@
+import asyncio
 import json
 import os
 import unittest
@@ -13,13 +14,15 @@ from ree_mcp.tools.glossary import ree_glossary
 class ReeDataLiveTests(unittest.TestCase):
     def test_fetches_live_generation_widget(self):
         result = json.loads(
-            ree_data(
-                ReeDataInput(
-                    category="generacion",
-                    widget="estructura-generacion",
-                    start_date="2019-01-01T00:00",
-                    end_date="2019-01-01T23:59",
-                    time_trunc="day",
+            asyncio.run(
+                ree_data(
+                    ReeDataInput(
+                        category="generacion",
+                        widget="estructura-generacion",
+                        start_date="2019-01-01T00:00",
+                        end_date="2019-01-01T23:59",
+                        time_trunc="day",
+                    )
                 )
             )
         )
@@ -37,7 +40,11 @@ class ReeDataLiveTests(unittest.TestCase):
 )
 class ReeGlossaryLiveTests(unittest.TestCase):
     def test_fetches_live_glossary_term(self):
-        result = json.loads(ree_glossary(term="Almacenamiento", category="electrical"))
+        result = json.loads(
+            asyncio.run(
+                ree_glossary(term="Almacenamiento", category="electrical")
+            )
+        )
 
         self.assertGreater(result["metadata"]["count"], 0)
         self.assertTrue(

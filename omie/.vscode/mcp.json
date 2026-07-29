@@ -1,9 +1,0 @@
-﻿{
-  "servers": {
-    "omie": {
-      "type": "stdio",
-      "command": "docker",
-      "args": ["run", "--rm", "-i", "mcp/omie"]
-    }
-  }
-}
