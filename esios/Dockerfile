@@ -1,0 +1,14 @@
+FROM python:3.12-slim-trixie
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
+
+ENV UV_NO_DEV=1
+
+WORKDIR /app
+
+COPY pyproject.toml .
+COPY README.md .
+COPY src/ src/
+
+RUN uv pip install --system .
+
+ENTRYPOINT ["python", "-m", "esios_mcp.app"]
