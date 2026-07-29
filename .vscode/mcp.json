@@ -17,6 +17,14 @@
       "env": {
         "PYTHONPATH": "${workspaceFolder}/omie/src"
       }
+    },
+    "esios": {
+      "type": "stdio",
+      "command": "docker",
+      "args": ["run", "--rm", "-i", "-e", "ESIOS_API_KEY", "mcp/esios"],
+      "env": {
+        "ESIOS_API_KEY": "${env:ESIOS_API_KEY}"
+      }
     }
   }
 }

@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "esios-mcp"
+version = "0.1.0"
+description = "MCP Server for the e·sios API"
+authors = [{name = "e·sios Integration Team"}]
+license = "MIT"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "fastmcp>=2.0.0",
+    "pydantic>=2.0",
+    "python-dotenv>=1.0.0",
+    "requests>=2.25.1",
+]
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[project.scripts]
+esios-mcp = "esios_mcp.app:main"

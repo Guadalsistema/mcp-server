@@ -166,6 +166,7 @@ async def ree_glossary(
     lang: str = "es",
     ctx: Context | None = None,
 ) -> str:
+    # TODO improve the tool description and explain the expected usage
     """
     Search REE's electrical and environmental glossary.
 

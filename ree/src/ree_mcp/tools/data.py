@@ -220,8 +220,7 @@ class ReeDataInput(BaseModel):
     widget: Widget = Field(description="Widget slug from the REData API.")
     start_date: str = Field(description="Start date as YYYY-MM-DDTHH:MM.")
     end_date: str = Field(description="End date as YYYY-MM-DDTHH:MM.")
-    # TODO marcar opciones disponibles
-    # TODO balance solo puede ir con balance-electrico y time_trunc>day
+    # TODO add to model validator: balance only can be used with balance-electrico and time_trunc != day
     time_trunc: TimeTrunc = Field(default="day", description="Time aggregation.")
     lang: Language = Field(default="es", description="Response language.")
     geo_trunc: GeoTrunc | None = Field(default=None)
@@ -230,6 +229,7 @@ class ReeDataInput(BaseModel):
     geo_ids: str | None = Field(
         default=None,
         pattern=r"^\d+$",
+        # TODO repasar los valores de geo_ids, que son los códigos de las CCAA y ponerlos en un Enum
         description=(
             "Numeric REE geography ID. For ccaa, Andalucía=4, Aragón=7, "
             "Cantabria=8, Castilla-La Mancha=9, Castilla y León=10, "
