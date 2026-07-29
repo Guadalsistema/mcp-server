@@ -281,10 +281,6 @@ def _ree_error_result(request: ReeDataInput, error: ReeApiError) -> ToolResult:
 def ree_data(request: ReeDataInput) -> str | ToolResult:
     """
     Retrieve a REData widget from Red Electrica's public API.
-
-    The request object is validated by FastMCP before this function runs. In
-    particular, potencia-maxima-instantanea belongs to generacion, while
-    demanda-tiempo-real is not exposed by the REData API.
     """
     url, params = build_data_request(
         request.lang,
