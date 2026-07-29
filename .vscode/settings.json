@@ -1,0 +1,6 @@
+{
+  "task.allowAutomaticTasks": "on",
+  "task.runOptions": {
+    "runOn": "folderOpen"
+  }
+}
