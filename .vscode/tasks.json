@@ -10,7 +10,7 @@
         "-ExecutionPolicy",
         "Bypass",
         "-Command",
-        "Start-Process -FilePath \"$PWD\\.venv\\Scripts\\python.exe\" -ArgumentList \"-m ree_mcp.app\" -WindowStyle Hidden -WorkingDirectory \"$PWD\"; Start-Process -FilePath \"$PWD\\.venv\\Scripts\\python.exe\" -ArgumentList \"-m omie_mcp.app\" -WindowStyle Hidden -WorkingDirectory \"$PWD\""
+        "$envFile = Join-Path $PWD '.env'; if (Test-Path $envFile) { Get-Content $envFile | ForEach-Object { if ($_ -match '^ESIOS_API_KEY=(.+)$') { $env:ESIOS_API_KEY = $matches[1] } } }; Start-Process -FilePath \"$PWD\\.venv\\Scripts\\python.exe\" -ArgumentList \"-m ree_mcp.app\" -WindowStyle Hidden -WorkingDirectory \"$PWD\"; Start-Process -FilePath \"$PWD\\.venv\\Scripts\\python.exe\" -ArgumentList \"-m omie_mcp.app\" -WindowStyle Hidden -WorkingDirectory \"$PWD\"; Start-Process -FilePath \"docker\" -ArgumentList \"run --rm -i -e ESIOS_API_KEY mcp/esios\" -WindowStyle Hidden -WorkingDirectory \"$PWD\""
       ],
       "problemMatcher": []
     }
