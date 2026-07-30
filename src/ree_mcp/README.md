@@ -75,12 +75,12 @@ return all entries.
 ## Installation and tests
 
 ```bash
-cd ree
 python -m venv .venv
-source .venv/bin/activate
-pip install -e .
-python -m unittest discover -s tests
-LIVE_TEST=1 python -m unittest discover -s tests
+.venv\Scripts\activate
+python -m pip install -e .
+python -m pytest tests/ree
+$env:LIVE_TEST = "1"
+python -m pytest tests/ree/test_live.py
 ```
 
 The live suite makes one real request for each exposed tool.

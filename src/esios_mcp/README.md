@@ -54,11 +54,10 @@ preserved under the response `data` field, with request metadata alongside it.
 ## Installation and tests
 
 ```powershell
-cd esios
 python -m venv .venv
 .venv\Scripts\Activate.ps1
-pip install -e .
-python -m unittest discover -s tests
+python -m pip install -e .
+python -m pytest tests/esios
 ```
 
 The live tests load `ESIOS_API_KEY` from `.env` with `python-dotenv`, but are
@@ -66,7 +65,7 @@ opt-in so ordinary test runs do not call the external API:
 
 ```powershell
 $env:LIVE_TEST = "1"
-python -m unittest discover -s tests -v
+python -m pytest tests/esios/test_live.py -v
 ```
 
 The local `.env` file is gitignored and excluded from the Docker build context;
@@ -83,7 +82,7 @@ python -m esios_mcp.app
 Build the image from the repository root:
 
 ```powershell
-docker build -t mcp/esios ./esios
+docker build -f docker/esios -t mcp/esios .
 ```
 
 The root VS Code MCP configuration starts it with Docker stdio and forwards

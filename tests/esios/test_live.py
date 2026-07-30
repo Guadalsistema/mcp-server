@@ -8,7 +8,7 @@ from esios_mcp.api import EsiosApiClient, IndicatorsApi, WidgetsApi
 
 
 if os.getenv("LIVE_TEST") == "1":
-    load_dotenv(Path(__file__).resolve().parents[1] / ".env")
+    load_dotenv(Path(__file__).resolve().parents[2] / ".env")
 
 
 @unittest.skipUnless(

@@ -4,7 +4,7 @@ This package implements OMIE (Spanish Electricity Market Operator) data as MCP (
 
 ## Features
 
-- **Caching**: SQLite-based in-memory caching to reduce expensive OMIE API calls
+- **Caching**: no persistent cache is enabled in the current unified tree
 - **Live Data Access**: Server always accesses live OMIE data (tests can override this)
 - **Multiple Data Types**: Support for various OMIE data products
 - **Standard MCP Interface**: Compliant with MCP protocol for AI agent consumption
@@ -33,13 +33,6 @@ result = pdbc(since="2023-03-01", until="2023-03-07")
 ```
 
 ## Implementation Details
-
-### Caching Strategy
-
-- Uses SQLite in-memory database (`omie_cache.db`)
-- Cache key format: `{tool_name}_{since}_{until}`
-- Default TTL: 1 hour (3600 seconds)
-- Cache is used to reduce redundant requests to OMIE server
 
 ### Live Data Access
 
@@ -80,20 +73,17 @@ requested range, then returns only rows inside the requested dates.
 
 ## Installation
 
-```bash
-# Activate virtual environment
-cd /home/johnny/git/mcp-server/main/omie
-source .venv/bin/activate
-
-# Install in development mode
-pip install -e .
+```powershell
+python -m venv .venv
+.venv\Scripts\Activate.ps1
+python -m pip install -e .
+python -m pytest tests/omie
 ```
 
 ## Running the Server
 
-```bash
-# Start the MCP server (always uses live data)
-python src/omie_mcp/app.py
+```powershell
+python -m omie_mcp.app
 ```
 
 The server will start on port 8000 and expose the OMIE tools via the MCP protocol.

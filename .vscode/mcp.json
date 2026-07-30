@@ -2,20 +2,20 @@
   "servers": {
     "ree": {
       "type": "stdio",
-      "command": "${workspaceFolder}/ree/.venv/Scripts/python.exe",
+      "command": "${workspaceFolder}/.venv/Scripts/python.exe",
       "args": ["-m", "ree_mcp.app"],
-      "cwd": "${workspaceFolder}/ree",
+      "cwd": "${workspaceFolder}",
       "env": {
-        "PYTHONPATH": "${workspaceFolder}/ree/src"
+        "PYTHONPATH": "${workspaceFolder}/src"
       }
     },
     "omie": {
       "type": "stdio",
-      "command": "${workspaceFolder}/omie/.venv/Scripts/python.exe",
+      "command": "${workspaceFolder}/.venv/Scripts/python.exe",
       "args": ["-m", "omie_mcp.app"],
-      "cwd": "${workspaceFolder}/omie",
+      "cwd": "${workspaceFolder}",
       "env": {
-        "PYTHONPATH": "${workspaceFolder}/omie/src"
+        "PYTHONPATH": "${workspaceFolder}/src"
       }
     },
     "esios": {

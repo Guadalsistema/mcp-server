@@ -10,7 +10,7 @@
         "-ExecutionPolicy",
         "Bypass",
         "-Command",
-        "Start-Process -FilePath \"$PWD\\ree\\.venv\\Scripts\\python.exe\" -ArgumentList \"-m ree_mcp.app\" -WindowStyle Hidden -WorkingDirectory \"$PWD\\ree\"; Start-Process -FilePath \"$PWD\\omie\\.venv\\Scripts\\python.exe\" -ArgumentList \"-m omie_mcp.app\" -WindowStyle Hidden -WorkingDirectory \"$PWD\\omie\""
+        "Start-Process -FilePath \"$PWD\\.venv\\Scripts\\python.exe\" -ArgumentList \"-m ree_mcp.app\" -WindowStyle Hidden -WorkingDirectory \"$PWD\"; Start-Process -FilePath \"$PWD\\.venv\\Scripts\\python.exe\" -ArgumentList \"-m omie_mcp.app\" -WindowStyle Hidden -WorkingDirectory \"$PWD\""
       ],
       "problemMatcher": []
     }
