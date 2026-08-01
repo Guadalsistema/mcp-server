@@ -2,7 +2,7 @@ import os
 import unittest
 from unittest.mock import MagicMock, patch
 
-from esios_mcp.api import (
+from esios.api import (
     ArchivesApi,
     CachedWidgetsApi,
     ContentApi,

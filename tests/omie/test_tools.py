@@ -3,11 +3,11 @@ import json
 import unittest
 from unittest.mock import patch
 
-from omie_mcp.tools._common import build_date_range, parse_omie_csv
+from omie.tools._common import build_date_range, parse_omie_csv
 
 
-marginalpdbc_module = importlib.import_module("omie_mcp.tools.marginalpdbc")
-pdbc_module = importlib.import_module("omie_mcp.tools.pdbc")
+marginalpdbc_module = importlib.import_module("omie.tools.marginalpdbc")
+pdbc_module = importlib.import_module("omie.tools.pdbc")
 
 
 MARGINAL_FILE = """MARGINALPDBC;

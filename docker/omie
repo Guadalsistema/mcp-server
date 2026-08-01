@@ -7,8 +7,9 @@ ENV UV_NO_DEV=1
 WORKDIR /app
 
 COPY pyproject.toml .
+COPY README.md .
 COPY src/ src/
 
 RUN uv pip install --system .
 
-ENTRYPOINT ["python", "-m", "omie_mcp.app"]
+ENTRYPOINT ["python", "-m", "omie.app"]

@@ -11,4 +11,4 @@ COPY src/ src/
 
 RUN uv pip install --system .
 
-ENTRYPOINT ["python", "-m", "ree_mcp.app"]
+ENTRYPOINT ["python", "-m", "ree.app"]

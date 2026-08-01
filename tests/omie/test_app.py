@@ -1,7 +1,7 @@
 import unittest
 from unittest.mock import patch
 
-from omie_mcp import app
+from omie import app
 
 
 class AppTests(unittest.TestCase):

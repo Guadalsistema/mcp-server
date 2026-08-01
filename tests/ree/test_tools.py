@@ -4,11 +4,11 @@ import unittest
 from typing import cast
 from unittest.mock import AsyncMock, MagicMock, call, patch
 
-from ree_mcp.app import server
+from ree.app import server
 from fastmcp.tools import ToolResult
 from mcp.types import CallToolResult, TextContent
-from ree_mcp.tools.data import ReeDataInput, ree_data
-from ree_mcp.tools.glossary import parse_glossary_html, ree_glossary
+from ree.mcp.data import ReeDataInput, ree_data
+from ree.api.glossary import parse_glossary_html
 
 
 DATA_PAYLOAD = {
@@ -59,7 +59,7 @@ class DataToolTests(unittest.TestCase):
         values.update(overrides)
         return ReeDataInput.model_validate(values)
 
-    @patch("ree_mcp.tools._common.requests.get")
+    @patch("ree.api.client.requests.get")
     def test_ree_data_calls_api_and_preserves_payload(self, get):
         get.return_value = Response(DATA_PAYLOAD)
 
@@ -98,7 +98,7 @@ class DataToolTests(unittest.TestCase):
                 }
             )
 
-    @patch("ree_mcp.tools._common.requests.get")
+    @patch("ree.api.client.requests.get")
     def test_builds_official_regional_query(self, get):
         get.return_value = Response(DATA_PAYLOAD)
 
@@ -126,7 +126,7 @@ class DataToolTests(unittest.TestCase):
             timeout=60,
         )
 
-    @patch("ree_mcp.tools._common.requests.get")
+    @patch("ree.api.client.requests.get")
     def test_ree_data_reports_api_call_to_mcp_client(self, get):
         get.return_value = Response(DATA_PAYLOAD)
         ctx = MagicMock(request_context=object())
@@ -158,7 +158,7 @@ class DataToolTests(unittest.TestCase):
         ))
         ctx.error.assert_not_awaited()
 
-    @patch("ree_mcp.tools._common.requests.get")
+    @patch("ree.api.client.requests.get")
     def test_ree_data_reports_api_failure_to_mcp_client(self, get):
         response = Response(text="upstream failure")
         response.status_code = 503
@@ -188,7 +188,7 @@ class DataToolTests(unittest.TestCase):
                 widget="potencia-maxima-instantanea",
             )
 
-    @patch("ree_mcp.tools._common.requests.get")
+    @patch("ree.api.client.requests.get")
     def test_fastmcp_rejects_english_category_before_api_call(self, get):
         tool = asyncio.run(server.get_tool("ree_data"))
         if tool is None:
@@ -210,7 +210,7 @@ class DataToolTests(unittest.TestCase):
 
         get.assert_not_called()
 
-    @patch("ree_mcp.tools._common.requests.get")
+    @patch("ree.api.client.requests.get")
     def test_fastmcp_requires_request_object(self, get):
         tool = asyncio.run(server.get_tool("ree_data"))
         if tool is None:
@@ -221,7 +221,7 @@ class DataToolTests(unittest.TestCase):
 
         get.assert_not_called()
 
-    @patch("ree_mcp.tools._common.requests.get")
+    @patch("ree.api.client.requests.get")
     def test_fastmcp_validates_before_making_invalid_request(self, get):
         tool = asyncio.run(server.get_tool("ree_data"))
         if tool is None:
@@ -246,7 +246,7 @@ class DataToolTests(unittest.TestCase):
 
         get.assert_not_called()
 
-    @patch("ree_mcp.tools._common.requests.get")
+    @patch("ree.api.client.requests.get")
     def test_fastmcp_accepts_and_builds_andalusia_power_request(self, get):
         get.return_value = Response(DATA_PAYLOAD)
         tool = asyncio.run(server.get_tool("ree_data"))
@@ -284,7 +284,7 @@ class DataToolTests(unittest.TestCase):
             timeout=60,
         )
 
-    @patch("ree_mcp.tools._common.requests.get")
+    @patch("ree.api.client.requests.get")
     def test_upstream_failure_is_reported_as_mcp_tool_error(self, get):
         response = Response(text="<!doctype html><html><body>server error</body></html>")
         response.status_code = 500
@@ -338,42 +338,6 @@ class GlossaryToolTests(unittest.TestCase):
                 },
             ],
         )
-
-    @patch("ree_mcp.tools.glossary._fetch_glossary", return_value=GLOSSARY_HTML)
-    def test_glossary_search_is_accent_insensitive(self, fetch):
-        result = json.loads(
-            asyncio.run(ree_glossary(term="almacenamiento", category="electrical"))
-        )
-
-        fetch.assert_called_once_with("es")
-        self.assertEqual(result["metadata"]["count"], 1)
-        self.assertEqual(result["data"][0]["term"], "Almacenamiento")
-
-    @patch("ree_mcp.tools.glossary._fetch_glossary", return_value=GLOSSARY_HTML)
-    def test_glossary_reports_api_call_to_mcp_client(self, fetch):
-        ctx = MagicMock(request_context=object())
-        ctx.info = AsyncMock()
-        ctx.error = AsyncMock()
-
-        asyncio.run(ree_glossary(term="almacenamiento", ctx=ctx))
-
-        fetch.assert_called_once_with("es")
-        self.assertEqual(ctx.info.await_count, 2)
-        self.assertEqual(ctx.info.await_args_list[0], call(
-            "Calling the REE glossary API",
-            logger_name="ree_mcp",
-            extra={"url": "https://www.ree.es/es/glosario", "lang": "es"},
-        ))
-        self.assertEqual(ctx.info.await_args_list[1], call(
-            "REE glossary API call completed",
-            logger_name="ree_mcp",
-            extra={
-                "url": "https://www.ree.es/es/glosario",
-                "status": "success",
-                "result_count": 1,
-            },
-        ))
-
 
 if __name__ == "__main__":
     unittest.main()

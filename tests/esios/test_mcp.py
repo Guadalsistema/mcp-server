@@ -6,9 +6,9 @@ from unittest.mock import AsyncMock, MagicMock, patch
 from fastmcp.tools import ToolResult
 from mcp.types import TextContent
 
-from esios_mcp.app import server
-from esios_mcp.mcp.indicators import esios_get_indicator, esios_list_indicators
-from esios_mcp.mcp.widgets import esios_get_widget
+from esios.app import server
+from esios.mcp.indicators import esios_get_indicator, esios_list_indicators
+from esios.mcp.widgets import esios_get_widget
 
 
 INDICATORS = {"indicators": [{"id": 123, "name": "Demanda"}], "meta": {"size": 1}}
@@ -16,7 +16,7 @@ WIDGET = {"widget": {"id_widget": 1, "id": "potencia", "indicators": []}}
 
 
 class McpToolTests(unittest.TestCase):
-    @patch("esios_mcp.mcp.indicators.EsiosApiClient")
+    @patch("esios.mcp.indicators.EsiosApiClient")
     def test_list_indicators_preserves_upstream_payload(self, client_class):
         client = client_class.return_value
         client.get.return_value = INDICATORS
@@ -27,7 +27,7 @@ class McpToolTests(unittest.TestCase):
         self.assertEqual(result["metadata"]["request"], {"locale": "es"})
         client.get.assert_called_once()
 
-    @patch("esios_mcp.mcp.indicators.EsiosApiClient")
+    @patch("esios.mcp.indicators.EsiosApiClient")
     def test_indicator_reports_client_visible_notifications(self, client_class):
         client_class.return_value.get.return_value = {"indicator": {"id": 123}}
         ctx = MagicMock(request_context=object())
@@ -47,7 +47,7 @@ class McpToolTests(unittest.TestCase):
         ctx.error.assert_not_awaited()
         self.assertIn("Calling the e·sios Indicator API get", ctx.info.await_args_list[0].args[0])
 
-    @patch("esios_mcp.mcp.widgets.EsiosApiClient")
+    @patch("esios.mcp.widgets.EsiosApiClient")
     def test_widget_tool_preserves_upstream_payload(self, client_class):
         client_class.return_value.get.return_value = WIDGET
 
@@ -93,9 +93,9 @@ class McpToolTests(unittest.TestCase):
         ):
             self.assertIsNotNone(asyncio.run(server.get_tool(name)), name)
 
-    @patch("esios_mcp.mcp.indicators.EsiosApiClient")
+    @patch("esios.mcp.indicators.EsiosApiClient")
     def test_missing_api_key_is_an_mcp_tool_error(self, client_class):
-        from esios_mcp.api import EsiosApiError
+        from esios.api import EsiosApiError
 
         client_class.side_effect = EsiosApiError(
             "ESIOS_API_KEY is required",

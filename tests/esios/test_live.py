@@ -4,7 +4,7 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 
-from esios_mcp.api import EsiosApiClient, IndicatorsApi, WidgetsApi
+from esios.api import EsiosApiClient, IndicatorsApi, WidgetsApi, load_glossary
 
 
 if os.getenv("LIVE_TEST") == "1":
@@ -41,6 +41,12 @@ class LiveApiTests(unittest.TestCase):
         identifier = first_widget.get("id_widget") or first_widget.get("id")
         detail = self.widgets.get(identifier, locale="es")
         self.assertIn("widget", detail)
+
+    def test_load_glossary_catalog(self):
+        catalog = load_glossary("es")
+
+        self.assertEqual(catalog.source, "esios")
+        self.assertTrue(catalog.entries)
 
 
 if __name__ == "__main__":

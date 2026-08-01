@@ -25,9 +25,10 @@ package-dir = {"" = "src"}
 where = ["src"]
 
 [project.scripts]
-ree-mcp = "ree_mcp.app:main"
-esios-mcp = "esios_mcp.app:main"
-omie-mcp = "omie_mcp.app:main"
+ree-mcp = "ree.app:main"
+esios-mcp = "esios.app:main"
+omie-mcp = "omie.app:main"
+glossary-mcp = "glossary.app:main"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

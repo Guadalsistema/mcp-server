@@ -3,7 +3,7 @@
     "ree": {
       "type": "stdio",
       "command": "${workspaceFolder}/.venv/Scripts/python.exe",
-      "args": ["-m", "ree_mcp.app"],
+      "args": ["-m", "ree.app"],
       "cwd": "${workspaceFolder}",
       "env": {
         "PYTHONPATH": "${workspaceFolder}/src"
@@ -12,7 +12,7 @@
     "omie": {
       "type": "stdio",
       "command": "${workspaceFolder}/.venv/Scripts/python.exe",
-      "args": ["-m", "omie_mcp.app"],
+      "args": ["-m", "omie.app"],
       "cwd": "${workspaceFolder}",
       "env": {
         "PYTHONPATH": "${workspaceFolder}/src"
@@ -22,6 +22,14 @@
       "type": "stdio",
       "command": "docker",
       "args": ["run", "--rm", "-i", "-e", "ESIOS_API_KEY", "mcp/esios"],
+      "env": {
+        "ESIOS_API_KEY": "${env:ESIOS_API_KEY}"
+      }
+    },
+    "glossary": {
+      "type": "stdio",
+      "command": "docker",
+      "args": ["run", "--rm", "-i", "-e", "ESIOS_API_KEY", "mcp/glossary"],
       "env": {
         "ESIOS_API_KEY": "${env:ESIOS_API_KEY}"
       }

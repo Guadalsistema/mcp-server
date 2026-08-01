@@ -2,8 +2,8 @@
 import os
 import unittest
 
-from omie_mcp.tools.marginalpdbc import marginalpdbc
-from omie_mcp.tools.pdbc import pdbc
+from omie.tools.marginalpdbc import marginalpdbc
+from omie.tools.pdbc import pdbc
 
 
 @unittest.skipUnless(os.getenv("LIVE_TEST") == "1", "set LIVE_TEST=1 to run live OMIE integration tests")

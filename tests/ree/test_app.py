@@ -1,7 +1,7 @@
 import unittest
 from unittest.mock import patch
 
-from ree_mcp import app
+from ree import app
 
 
 class AppTests(unittest.TestCase):

@@ -2,9 +2,11 @@ import asyncio
 import json
 import os
 import unittest
+from typing import cast
 
-from ree_mcp.tools.data import ReeDataInput, ree_data
-from ree_mcp.tools.glossary import ree_glossary
+from ree.mcp.data import ReeDataInput, ree_data
+from ree.mcp.glossary import ree_glossary_search
+from glossary.models import GlossarySearchRequest
 
 
 @unittest.skipUnless(
@@ -13,19 +15,18 @@ from ree_mcp.tools.glossary import ree_glossary
 )
 class ReeDataLiveTests(unittest.TestCase):
     def test_fetches_live_generation_widget(self):
-        result = json.loads(
-            asyncio.run(
-                ree_data(
-                    ReeDataInput(
-                        category="generacion",
-                        widget="estructura-generacion",
-                        start_date="2019-01-01T00:00",
-                        end_date="2019-01-01T23:59",
-                        time_trunc="day",
-                    )
+        raw_result = asyncio.run(
+            ree_data(
+                ReeDataInput(
+                    category="generacion",
+                    widget="estructura-generacion",
+                    start_date="2019-01-01T00:00",
+                    end_date="2019-01-01T23:59",
+                    time_trunc="day",
                 )
             )
         )
+        result = json.loads(cast(str, raw_result))
 
         self.assertEqual(result["metadata"]["source"], "REE")
         self.assertEqual(result["metadata"]["category"], "generacion")
@@ -39,17 +40,19 @@ class ReeDataLiveTests(unittest.TestCase):
     "set LIVE_TEST=1 to run live REE integration tests",
 )
 class ReeGlossaryLiveTests(unittest.TestCase):
-    def test_fetches_live_glossary_term(self):
-        result = json.loads(
-            asyncio.run(
-                ree_glossary(term="Almacenamiento", category="electrical")
+    def test_fetches_live_structured_glossary_term(self):
+        result = asyncio.run(
+            ree_glossary_search(
+                GlossarySearchRequest(
+                    query="Almacenamiento",
+                    lookup_forms=["almacenamiento"],
+                    language="es",
+                )
             )
         )
 
-        self.assertGreater(result["metadata"]["count"], 0)
-        self.assertTrue(
-            any(item["term"] == "Almacenamiento" for item in result["data"])
-        )
+        self.assertTrue(result.candidates)
+        self.assertEqual(result.candidates[0].source, "REE glossary")
 
 
 if __name__ == "__main__":
