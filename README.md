@@ -50,6 +50,8 @@ docker build -f docker/omie -t mcp/omie .
 docker build -f docker/glossary -t mcp/glossary .
 ```
 
-`mcp/esios` and `mcp/glossary` require `ESIOS_API_KEY` at runtime. The
-glossary server exposes `glossary_search`, `ree_glossary_search`, and
+`mcp/esios` and `mcp/glossary` require `ESIOS_API_KEY` at runtime. The API key
+can also be supplied to either MCP process with `--asios-api-key`; the
+`--esios-api-key` spelling is accepted as an alias. The glossary server
+exposes `glossary_search`, `ree_glossary_search`, and
 `esios_glossary_search` as structured-output tools.

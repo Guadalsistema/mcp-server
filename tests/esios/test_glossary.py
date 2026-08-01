@@ -45,9 +45,10 @@ class EsiosGlossaryApiTests(unittest.TestCase):
         client = client_class.return_value
         client.get.return_value = GLOSSARY_PAYLOAD
 
-        result = load_glossary("en")
+        result = load_glossary("en", api_key="direct-key")
 
         self.assertEqual(result.language, "en")
+        client_class.assert_called_once_with(api_key="direct-key")
         client.get.assert_called_once_with(
             "/en/glossaries",
             params={"locale": "en"},

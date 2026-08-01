@@ -3,9 +3,13 @@
 
 import logging
 
+from dotenv import load_dotenv
 from fastmcp import FastMCP
 
 from ree.mcp import ree_data, ree_glossary_search
+
+
+load_dotenv()
 
 
 server = FastMCP(

@@ -110,9 +110,15 @@ def glossary_payload_to_catalog(
     )
 
 
-def load_glossary(language: GlossaryLanguage) -> GlossaryCatalog:
+def load_glossary(
+    language: GlossaryLanguage,
+    *,
+    api_key: str | None = None,
+) -> GlossaryCatalog:
     """Fetch and adapt the complete localized e·sios glossary."""
     if language not in {"es", "en"}:
         raise ValueError("language must be one of: en, es")
-    payload = ContentApi(EsiosApiClient()).list("glossaries", locale=language)
+    payload = ContentApi(EsiosApiClient(api_key=api_key)).list(
+        "glossaries", locale=language
+    )
     return glossary_payload_to_catalog(payload, language)

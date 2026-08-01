@@ -1,8 +1,11 @@
 #!/usr/bin/env python3
 """e·sios MCP server entry point."""
 
+import argparse
 import logging
+from collections.abc import Sequence
 
+from dotenv import load_dotenv
 from fastmcp import FastMCP
 
 from esios.mcp import (
@@ -30,6 +33,9 @@ from esios.mcp import (
     esios_search_contents_and_indicators,
     esios_search_indicators,
 )
+
+
+load_dotenv()
 
 
 server = FastMCP(
@@ -65,7 +71,19 @@ server.add_tool(esios_search_contents_and_indicators)
 server.add_tool(esios_glossary_search)
 
 
-def main() -> None:
+def main(argv: Sequence[str] | None = None) -> None:
+    parser = argparse.ArgumentParser(add_help=False)
+    parser.add_argument(
+        "--asios-api-key",
+        "--esios-api-key",
+        dest="api_key",
+        help="e·sios API key (also accepted from ESIOS_API_KEY)",
+    )
+    arguments, _ = parser.parse_known_args(argv)
+    if arguments.api_key:
+        import os
+
+        os.environ["ESIOS_API_KEY"] = arguments.api_key
     logging.basicConfig(level=logging.INFO)
     server.run(show_banner=False)
 
