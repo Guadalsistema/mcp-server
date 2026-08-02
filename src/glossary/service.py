@@ -129,7 +129,7 @@ def search_entries(
     for entry in entries:
         if entry.language != request.language:
             continue
-        if request.domain is not None and entry.domain != request.domain:
+        if request.domain is not None and entry.domain not in {None, request.domain}:
             continue
         match = _match_entry(entry, lookup_forms)
         if match is None:

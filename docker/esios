@@ -9,6 +9,7 @@ COPY pyproject.toml .
 COPY README.md .
 COPY src/ src/
 
-RUN uv pip install --system .
+RUN uv pip install --system . "spacy>=3.8,<3.9" \
+    && python -m spacy download es_core_news_sm
 
 ENTRYPOINT ["python", "-m", "esios.app"]

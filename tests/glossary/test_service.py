@@ -340,6 +340,34 @@ class CacheTests(unittest.TestCase):
             ["e·sios glossary", "REE glossary"],
         )
 
+    def test_domain_filtered_search_keeps_domainless_esios_entries(self):
+        service = GlossaryService(
+            {
+                "ree": lambda language: catalog("ree", [entry("Cable", "Definición REE")]),
+                "esios": lambda language: catalog(
+                    "esios",
+                    [
+                        entry(
+                            "Cable",
+                            "Definición e·sios",
+                            source="esios",
+                            source_id="886",
+                            domain=None,
+                        )
+                    ],
+                ),
+            }
+        )
+
+        result = asyncio.run(
+            service.search(("ree", "esios"), request("cable", domain="electrical"))
+        )
+
+        self.assertEqual(
+            [candidate.source for candidate in result.candidates],
+            ["e·sios glossary", "REE glossary"],
+        )
+
     def test_combined_retrieval_time_uses_the_oldest_source_fetch(self):
         older = datetime(2026, 8, 1, 10, 0, tzinfo=timezone.utc)
         newer = datetime(2026, 8, 1, 12, 0, tzinfo=timezone.utc)
