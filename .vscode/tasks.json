@@ -10,7 +10,7 @@
         "-ExecutionPolicy",
         "Bypass",
         "-Command",
-        "$envFile = Join-Path $PWD '.env'; if (Test-Path $envFile) { Get-Content $envFile | ForEach-Object { if ($_ -match '^ESIOS_API_KEY=(.+)$') { $env:ESIOS_API_KEY = $matches[1] } } }; Start-Process -FilePath \"$PWD\\.venv\\Scripts\\python.exe\" -ArgumentList \"-m ree.app\" -WindowStyle Hidden -WorkingDirectory \"$PWD\"; Start-Process -FilePath \"$PWD\\.venv\\Scripts\\python.exe\" -ArgumentList \"-m omie.app\" -WindowStyle Hidden -WorkingDirectory \"$PWD\"; Start-Process -FilePath \"docker\" -ArgumentList \"run --rm -i -e ESIOS_API_KEY mcp/esios\" -WindowStyle Hidden -WorkingDirectory \"$PWD\"; Start-Process -FilePath \"docker\" -ArgumentList \"run --rm -i -e ESIOS_API_KEY mcp/glossary\" -WindowStyle Hidden -WorkingDirectory \"$PWD\""
+        "$envFile = Join-Path $PWD '.env'; if (Test-Path $envFile) { Get-Content $envFile | ForEach-Object { if ($_ -match '^\s*ESIOS_API_KEY=(.+)$') { $env:ESIOS_API_KEY = $matches[1] } } }; if (-not $env:ESIOS_API_KEY) { throw 'ESIOS_API_KEY was not found in .env' }; Start-Process -FilePath \"$PWD\\.venv\\Scripts\\python.exe\" -ArgumentList \"-m ree.app\" -WindowStyle Hidden -WorkingDirectory \"$PWD\"; Start-Process -FilePath \"$PWD\\.venv\\Scripts\\python.exe\" -ArgumentList \"-m omie.app\" -WindowStyle Hidden -WorkingDirectory \"$PWD\"; Start-Process -FilePath \"docker\" -ArgumentList \"run --rm -i -e ESIOS_API_KEY=$env:ESIOS_API_KEY mcp/esios\" -WindowStyle Hidden -WorkingDirectory \"$PWD\"; Start-Process -FilePath \"docker\" -ArgumentList \"run --rm -i -e ESIOS_API_KEY=$env:ESIOS_API_KEY mcp/glossary\" -WindowStyle Hidden -WorkingDirectory \"$PWD\""
       ],
       "problemMatcher": []
     }
