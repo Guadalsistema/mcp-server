@@ -17,6 +17,7 @@ from .common import (
 )
 
 
+# TODO build it from CONTENT_TYPES instead of hardcoding
 ContentType = Literal["maps", "documentations", "glossaries", "news", "static_pages", "umms"]
 ContentOrder = Literal["published", "updated", "expires", "created"]
 
